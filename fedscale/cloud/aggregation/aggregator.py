@@ -556,6 +556,7 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         if self.round >= self.args.rounds:
             self.broadcast_aggregator_events(commons.SHUT_DOWN)
         elif self.round % self.args.eval_interval == 0 or self.round == 1:
+            # 第一轮训练结束后/满足round间隔eval_interval时，执行test
             self.broadcast_aggregator_events(commons.UPDATE_MODEL)
             self.broadcast_aggregator_events(commons.MODEL_TEST)
         else:

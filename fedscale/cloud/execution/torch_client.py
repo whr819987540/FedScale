@@ -263,6 +263,7 @@ class TorchClient(ClientBase):
         test_loss, acc, acc_5, test_results = test_pytorch_model(conf.rank, model, client_data,
                                                                  device=self.device, criterion=criterion,
                                                                  tokenizer=conf.tokenizer)
+        # test
         logging.info(
             "Test results: Eval_time {}, test_loss {}, test_accuracy {:.2f}%, "
             "test_5_accuracy {:.2f}% \n"

@@ -331,6 +331,7 @@ class Executor(object):
                                      batch_size=self.args.test_bsz, args=self.args,
                                      isTest=True, collate_fn=self.collate_fn)
 
+        # test
         test_results = client.test(data_loader, self.model_adapter.get_model(), test_config)
         self.log_test_result(test_results)
         gc.collect()
@@ -394,6 +395,7 @@ class Executor(object):
                     future_call.add_done_callback(lambda _response: self.dispatch_worker_events(_response.result()))
 
                 elif current_event == commons.MODEL_TEST:
+                    # test
                     self.Test(self.deserialize_response(request.meta))
 
                 elif current_event == commons.UPDATE_MODEL:
