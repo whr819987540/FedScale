@@ -66,6 +66,7 @@ class TorchClient(ClientBase):
 
         # NOTE: If one may hope to run fixed number of epochs, instead of iterations,
         # use `while self.completed_steps < conf.local_steps * len(client_data)` instead
+        # run in a few steps specified in config file
         while self.completed_steps < conf.local_steps:
             try:
                 self.train_step(client_data, conf, model, optimizer, criterion)
@@ -141,6 +142,7 @@ class TorchClient(ClientBase):
 
     def train_step(self, client_data, conf, model, optimizer, criterion):
 
+        # run on mini-batches decided by the dataset size and batch size
         for data_pair in client_data:
             if conf.task == 'nlp':
                 (data, _) = data_pair

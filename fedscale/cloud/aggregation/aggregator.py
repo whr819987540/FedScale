@@ -552,6 +552,7 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         self.loss_accumulator = []
         self.update_default_task_config()
 
+        # run in a few rounds specified in config file
         if self.round >= self.args.rounds:
             self.broadcast_aggregator_events(commons.SHUT_DOWN)
         elif self.round % self.args.eval_interval == 0 or self.round == 1:

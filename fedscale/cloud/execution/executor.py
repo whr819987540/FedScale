@@ -372,6 +372,7 @@ class Executor(object):
         logging.info("Start monitoring events ...")
         self.client_register()
 
+        # run in a few rounds specified in config file
         while not self.received_stop_request:
             if len(self.event_queue) > 0:
                 request = self.event_queue.popleft()
