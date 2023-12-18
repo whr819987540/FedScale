@@ -886,8 +886,9 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         return self.CLIENT_PING(request, context)
 
     def CLIENT_GET_UPDATED_BT_PS_CONFIG(self, request, context):
-        executor_id, event =  request.executor_id, commons.UPDATE_BT_PS_CONFIG
-        logging.debug(f"executor_id:{executor_id}, event:{event}")
+        executor_id = request.executor_id
+        event = commons.UPDATE_BT_PS_CONFIG
+        logging.info(f"executor_id:{executor_id}, event:{event} response_data:{self.bt_ps_config_dict}")
         
         # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件
         response_data = self.bt_ps_config_dict
