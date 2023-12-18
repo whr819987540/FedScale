@@ -190,6 +190,22 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         """
         pass
 
+    def init_bt_ps_setting(self):
+        # ======== necessary objects if bt_ps is used ========
+        if self.args.use_bt_ps:
+            RANK = self.this_rank
+            self.logger = utils.get_logger(self.args, f"[{RANK}]")
+
+            # 更新bt_ps配置文件（aggregator完成）
+            # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件          
+            self.bt_ps_config, json_config_path = utils.get_updated_config_file(self.this_rank, self.args.ps_ip, self.args.ps_port, self.args.model, self.args.data_set)
+            with open(json_config_path, 'w') as f:
+                f.write(json.dumps(self.bt_ps_config))
+            self.bt_ps_config_dict = self.bt_ps_config
+            self.bt_ps_config = to_namespace(self.bt_ps_config)
+            model_root_dir = self.bt_ps_config.model.ModelPath
+            os.makedirs(model_root_dir, exist_ok=True)
+
     def init_model(self):
         """Initialize the model"""
         if self.args.engine == commons.TENSORFLOW:
@@ -385,6 +401,7 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             
         self.init_control_communication()
         self.init_data_communication()
+        self.init_bt_ps_setting()
 
         self.init_model()
         self.model_update_size = sys.getsizeof(
@@ -867,6 +884,19 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             logging.error(f"Received undefined event {event} from client {client_id}")
 
         return self.CLIENT_PING(request, context)
+
+    def CLIENT_GET_UPDATED_BT_PS_CONFIG(self, request, context):
+        executor_id, event =  request.executor_id, commons.UPDATE_BT_PS_CONFIG
+        logging.debug(f"executor_id:{executor_id}, event:{event}")
+        
+        # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件
+        response_data = self.bt_ps_config_dict
+        response = job_api_pb2.ServerResponse(
+            event=event,
+            meta=self.serialize_response(event),
+            data=self.serialize_response(response_data)
+        )
+        return response
 
     def event_monitor(self):
         """Activate event handler according to the received new message
