@@ -9,6 +9,7 @@ service JobService {
     rpc CLIENT_REGISTER (RegisterRequest) returns (ServerResponse) {}
     rpc CLIENT_PING (PingRequest) returns (ServerResponse) {}
     rpc CLIENT_EXECUTE_COMPLETION (CompleteRequest) returns (ServerResponse) {}
+    rpc CLIENT_GET_UPDATED_BT_PS_CONFIG (UpdateBTPSConfigRequest) returns (ServerResponse) {}
 }
 
 message ServerResponse {
@@ -36,4 +37,8 @@ message CompleteRequest {
     string msg = 5;
     string meta_result = 6;
     bytes data_result = 7;
+}
+
+message UpdateBTPSConfigRequest {
+    string executor_id = 1;
 }
