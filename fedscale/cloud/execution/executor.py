@@ -137,12 +137,22 @@ class Executor(object):
 
         return training_sets, testing_sets
 
+    def init_bt_ps_setting(self):
+        # ======== necessary objects if bt_ps is used ========
+        if self.args.use_bt_ps:
+            RANK = self.this_rank
+            self.logger = utils.get_logger(self.args, f"[{RANK}]")
+
+            # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件
+            self.client_get_updated_bt_ps_config()
+
     def run(self):
         """Start running the executor by setting up execution and communication environment, and monitoring the grpc message.
         """
         self.setup_env()
         self.training_sets, self.testing_sets = self.init_data()
         self.setup_communication()
+        self.init_bt_ps_setting()
         self.event_monitor()
 
     def dispatch_worker_events(self, request):
@@ -369,6 +379,14 @@ class Executor(object):
         ))
         self.dispatch_worker_events(response)
 
+    def client_get_updated_bt_ps_config(self):
+        response = self.aggregator_communicator.stub.CLIENT_GET_UPDATED_BT_PS_CONFIG(
+            job_api_pb2.UpdateBTPSConfigRequest(
+                executor_id=self.executor_id
+            )
+        )
+        self.dispatch_worker_events(response)
+
     def event_monitor(self):
         """Activate event handler once receiving new message
         """
@@ -409,6 +427,12 @@ class Executor(object):
 
                 elif current_event == commons.DUMMY_EVENT:
                     pass
+
+                elif current_event == commons.UPDATE_BT_PS_CONFIG:
+                    self.logger.debug(f"{self.executor_id} UPDATE_BT_PS_CONFIG")
+                    self.bt_ps_config_dict = self.deserialize_response(request.data)
+                    self.bt_ps_config = to_namespace(self.bt_ps_config_dict)
+                    self.logger.debug(f"bt_ps config: {self.bt_ps_config}")
             else:
                 time.sleep(1)
                 try:
