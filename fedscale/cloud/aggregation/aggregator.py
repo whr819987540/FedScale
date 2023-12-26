@@ -859,12 +859,23 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             elif current_event == commons.MODEL_TEST:
                 response_msg = self.get_test_config(client_id)
             elif current_event == commons.UPDATE_MODEL:
-                response_data = self.model_wrapper.get_weights()
+                # distribute the updated model
+                # TODO: Here server returns torrent instead of the model directly
+                # , and server should use torrent lib to seed before this event (that is round completion)
+                # DONE: No broadcast is needed in RPC-based communication.
+                if self.args.use_bt_ps:
+                    # request作为参数，相当于已经选了一个client，现在只需要将torrent返回即可
+                    response_data = self.torrent
+                else:
+                    response_data = self.model_wrapper.get_weights()
             elif current_event == commons.SHUT_DOWN:
                 response_msg = self.get_shutdown_config(executor_id)
 
-        response_msg, response_data = self.serialize_response(
-            response_msg), self.serialize_response(response_data)
+        if current_event == commons.UPDATE_MODEL and self.args.use_bt_ps:
+            response_msg = self.serialize_response(response_msg)
+        else:
+            response_msg, response_data = self.serialize_response(
+                response_msg), self.serialize_response(response_data)
         # NOTE: in simulation mode, response data is pickle for faster (de)serialization
         response = job_api_pb2.ServerResponse(event=current_event,
                                               meta=response_msg, data=response_data)
