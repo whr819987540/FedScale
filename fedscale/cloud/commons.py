@@ -13,6 +13,7 @@ CLIENT_CONNECT = 'client_connect'
 CLIENT_TRAIN = 'client_train'
 DUMMY_EVENT = 'dummy_event'
 UPLOAD_MODEL = 'upload_model'
+UPDATE_BT_PS_CONFIG = 'update_bt_ps_config'
 
 # PLACEHOLD
 DUMMY_RESPONSE = 'N'
