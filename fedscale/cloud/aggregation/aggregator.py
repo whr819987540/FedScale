@@ -201,7 +201,7 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             # 更新bt_ps配置文件（aggregator完成）
             # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件          
             self.bt_ps_config_dict, json_config_path = utils.get_updated_config_file(self.this_rank, self.args.ps_ip, self.args.ps_port, self.args.model, self.args.data_set)
-            self.bt_ps_config = to_namespace(self.bt_ps_config)
+            self.bt_ps_config = to_namespace(self.bt_ps_config_dict)
             with open(json_config_path, 'w') as f:
                 f.write(json.dumps(self.bt_ps_config_dict))
             self.logger.debug(f"bt_ps config: {self.bt_ps_config_dict}")
