@@ -25,9 +25,9 @@ from fedscale.cloud.internal.torch_model_adapter import TorchModelAdapter
 from fedscale.cloud.resource_manager import ResourceManager
 from fedscale.cloud.fllibs import *
 from torch.utils.tensorboard import SummaryWriter
-from p2p_server.rpc.rpc_client import TorrentCommunication
 from p2p_server.rpc.rpc_client import readJsonc, loadConfig, to_namespace
 from p2p_server.utils import utils
+from fedscale.utils.helper.helper import TorrentCommunicationRPC
 
 MAX_MESSAGE_LENGTH = 1 * 1024 * 1024 * 1024  # 1GB
 
