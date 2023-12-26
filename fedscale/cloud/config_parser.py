@@ -218,6 +218,8 @@ parser.add_argument('--no-bidirectional', dest='bidirectional', action='store_fa
 # added config
 parser.add_argument('--use_bt_ps',type=bool,default=False,
                     help="whether to use bittorrent to distribute the aggregated model")
+parser.add_argument("--log_level", type=str, default="DEBUG",
+                    help="debug level: NOTSET, DEBUG, INFO, WARNING, ERROR, FATAL, CRITICAL")
 
 args, unknown = parser.parse_known_args()
 args.use_cuda = eval(args.use_cuda)
