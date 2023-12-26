@@ -119,6 +119,7 @@ def process_cmd(yaml_file, local=False):
         print(f"Starting aggregator container {ps_name} on {ps_ip}...")
         ps_cmd = f" docker run -i --name {ps_name} --network {yaml_conf['container_network']} -p {ports[0]}:30000 --mount type=bind,source={yaml_conf['data_path']},target=/FedScale/benchmark fedscale/fedscale-aggr"
     else:
+        # 启动aggregator
         print(f"Starting aggregator on {ps_ip}...")
         ps_cmd = f" python {yaml_conf['exp_path']}/{yaml_conf['aggregator_entry']} {conf_script} --this_rank=0 --num_executors={total_gpu_processes} --executor_configs={executor_configs} "
 
@@ -129,10 +130,12 @@ def process_cmd(yaml_file, local=False):
         if local:
             local_process = subprocess.Popen(f'{ps_cmd}', shell=True, stdout=fout, stderr=fout)
             local_pid = local_process.pid
+            print(ps_cmd)
             print(f'Aggregator local PID {local_pid}. Run kill -9 {local_pid} to kill the job.')
         else:
-            subprocess.Popen(f'ssh {submit_user}{ps_ip} "{setup_cmd} {ps_cmd}"',
-                             shell=True, stdout=fout, stderr=fout)
+            cmd = f'ssh {submit_user}{ps_ip} "{setup_cmd} {ps_cmd}"'
+            print(cmd)            
+            subprocess.Popen(cmd, shell=True, stdout=fout, stderr=fout)
 
     time.sleep(10)
     # =========== Submit job to each worker ============
