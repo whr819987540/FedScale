@@ -441,6 +441,8 @@ class Executor(object):
                     _, json_config_path = utils.get_updated_config_file(self.this_rank, self.args.ps_ip, self.args.ps_port, self.args.model, self.args.data_set)
                     with open(json_config_path, 'w') as f:
                         f.write(json.dumps(self.bt_ps_config_dict))
+                    self.model_root_dir = self.bt_ps_config.model.ModelPath
+                    os.makedirs(self.model_root_dir, exist_ok=True)
 
             else:
                 time.sleep(1)
