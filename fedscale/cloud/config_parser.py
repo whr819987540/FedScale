@@ -215,6 +215,10 @@ parser.add_argument('--noise-max', default=0.5,
 parser.add_argument('--no-bidirectional', dest='bidirectional', action='store_false', default=True,
                     help='Turn off bi-directional RNNs, introduces lookahead convolution')
 
+# added config
+parser.add_argument('--use_bt_ps',type=bool,default=False,
+                    help="whether to use bittorrent to distribute the aggregated model")
+
 args, unknown = parser.parse_known_args()
 args.use_cuda = eval(args.use_cuda)
 
