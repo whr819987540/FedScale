@@ -201,12 +201,13 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             # 更新bt_ps配置文件（aggregator完成）
             # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件          
             self.bt_ps_config_dict, json_config_path = utils.get_updated_config_file(self.this_rank, self.args.ps_ip, self.args.ps_port, self.args.model, self.args.data_set)
+            self.bt_ps_config = to_namespace(self.bt_ps_config)
             with open(json_config_path, 'w') as f:
                 f.write(json.dumps(self.bt_ps_config_dict))
-            self.bt_ps_config = to_namespace(self.bt_ps_config)
+            self.logger.debug(f"bt_ps config: {self.bt_ps_config_dict}")
+            
             self.model_root_dir = self.bt_ps_config.model.ModelPath
             os.makedirs(self.model_root_dir, exist_ok=True)
-            self.logger.debug(f"bt_ps config: {self.bt_ps_config_dict}")
 
             # This function must be called after all bt_ps-related initializations are done.
             self.tc = TorrentCommunicationRPC(RANK, self.logger)

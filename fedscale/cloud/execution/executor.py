@@ -434,15 +434,18 @@ class Executor(object):
 
                 elif current_event == commons.UPDATE_BT_PS_CONFIG:
                     self.logger.debug(f"{self.executor_id} UPDATE_BT_PS_CONFIG")
+                    
                     self.bt_ps_config_dict = self.deserialize_response(request.data)
                     self.bt_ps_config = to_namespace(self.bt_ps_config_dict)
-                    self.logger.debug(f"bt_ps config: {self.bt_ps_config_dict}")
                     # In executor, only json_config_path is valid.
                     _, json_config_path = utils.get_updated_config_file(self.this_rank, self.args.ps_ip, self.args.ps_port, self.args.model, self.args.data_set)
                     with open(json_config_path, 'w') as f:
                         f.write(json.dumps(self.bt_ps_config_dict))
+                    self.logger.debug(f"bt_ps config: {self.bt_ps_config_dict}")
+
                     self.model_root_dir = self.bt_ps_config.model.ModelPath
                     os.makedirs(self.model_root_dir, exist_ok=True)
+
                     # Only after receiving the updated config and writing it to dick can we create tc.
                     self.tc = TorrentCommunicationRPC(self.this_rank, self.logger)
 
