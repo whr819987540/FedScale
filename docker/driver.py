@@ -176,6 +176,7 @@ def process_cmd(yaml_file, local=False):
                         subprocess.Popen(cmd, shell=True, stdout=fout, stderr=fout)
 
     # dump the address of running workers
+    # save info for terminating the executors
     current_path = os.path.dirname(os.path.abspath(__file__))
     job_name = os.path.join(current_path, job_name)
     with open(job_name, 'wb') as fout:
