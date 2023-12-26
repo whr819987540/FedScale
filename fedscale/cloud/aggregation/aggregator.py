@@ -533,6 +533,22 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         """
         self.global_virtual_clock += self.round_duration
         self.round += 1
+
+        if self.args.use_bt_ps:
+            # stop seeding the model in previous round and remove it from memory
+            # immediately after this round is completed
+            if self.torrent is not None:
+                self.tc.stop_seeding(self.torrent)
+                os.remove(self.bt_ps_temp_model_path)
+
+            # Aggregator can only see rounds.
+            # Executor can sees rounds, local_steps and mini-batch.
+            self.bt_ps_temp_model_path = os.path.join(self.model_root_dir,  f"{self.round}.pkl")
+            torch.save(self.model_wrapper.model.state_dict(), self.bt_ps_temp_model_path)
+            self.logger.debug(f"present temp model path: {self.bt_ps_temp_model_path}")
+            self.torrent = self.tc.create_torrent(self.bt_ps_temp_model_path)
+            self.tc._start_seeding(self.tc, self.torrent)
+
         last_round_avg_util = sum(self.stats_util_accumulator) / max(1, len(self.stats_util_accumulator))
         # assign avg reward to explored, but not ran workers
         for client_id in self.round_stragglers:
