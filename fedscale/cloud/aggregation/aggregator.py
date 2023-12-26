@@ -195,6 +195,8 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         if self.args.use_bt_ps:
             RANK = self.this_rank
             self.logger = utils.get_logger(self.args, f"[{RANK}]")
+            self.torrent = None
+            self.bt_ps_temp_model_path = None
 
             # 更新bt_ps配置文件（aggregator完成）
             # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件          
@@ -203,8 +205,12 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
                 f.write(json.dumps(self.bt_ps_config))
             self.bt_ps_config_dict = self.bt_ps_config
             self.bt_ps_config = to_namespace(self.bt_ps_config)
-            model_root_dir = self.bt_ps_config.model.ModelPath
-            os.makedirs(model_root_dir, exist_ok=True)
+            self.model_root_dir = self.bt_ps_config.model.ModelPath
+            os.makedirs(self.model_root_dir, exist_ok=True)
+            self.logger.debug(self.bt_ps_config_dict)
+
+            # This function must be called after all bt_ps-related initializations are done.
+            self.tc = TorrentCommunicationRPC(RANK, self.logger)
 
     def init_model(self):
         """Initialize the model"""
