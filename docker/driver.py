@@ -161,17 +161,19 @@ def process_cmd(yaml_file, local=False):
 
                     worker_cmd = f" docker run -i --name fedscale-exec{rank_id}-{time_stamp} --network {yaml_conf['container_network']} -p {ports[rank_id]}:32000 --mount type=bind,source={yaml_conf['data_path']},target=/FedScale/benchmark fedscale/fedscale-exec"
                 else:
+                    # 启动executor
                     worker_cmd = f" python {yaml_conf['exp_path']}/{yaml_conf['executor_entry']} {conf_script} --this_rank={rank_id} --num_executors={total_gpu_processes} --cuda_device=cuda:{cuda_id} "
                 rank_id += 1
 
                 with open(f"{job_name}_logging", 'a') as fout:
                     time.sleep(2)
                     if local:
-                        subprocess.Popen(f'{worker_cmd}',
-                                         shell=True, stdout=fout, stderr=fout)
+                        subprocess.Popen(f'{worker_cmd}', shell=True, stdout=fout, stderr=fout)
+                        print(worker_cmd)
                     else:
-                        subprocess.Popen(f'ssh {submit_user}{worker} "{setup_cmd} {worker_cmd}"',
-                                         shell=True, stdout=fout, stderr=fout)
+                        cmd = f'ssh {submit_user}{worker} "{setup_cmd} {worker_cmd}"'
+                        print(cmd)
+                        subprocess.Popen(cmd, shell=True, stdout=fout, stderr=fout)
 
     # dump the address of running workers
     current_path = os.path.dirname(os.path.abspath(__file__))
