@@ -286,17 +286,25 @@ def terminate(yaml_file):
             core_api.delete_namespaced_pod(name, namespace="fedscale")
 
     else:
+        setup_cmd = ''
+        if yaml_conf['setup_commands'] is not None:
+            setup_cmd += (yaml_conf['setup_commands'][0] + ' && ')
+            for item in yaml_conf['setup_commands'][1:]:
+                setup_cmd += (item + ' && ')
+            
         for vm_ip in job_meta['vms']:
             print(f"Shutting down job on {vm_ip}")
             with open(f"{job_name}_logging", 'a') as fout:
-                subprocess.Popen(f'ssh {job_meta["user"]}{vm_ip} "python {current_path}/shutdown.py {job_name}"',
-                                shell=True, stdout=fout, stderr=fout)
+                cmd = f'ssh {job_meta["user"]}{vm_ip} "{setup_cmd} python {current_path}/shutdown.py {job_name}"'
+                print(cmd)
+                subprocess.Popen(cmd, shell=True, stdout=fout, stderr=fout)
 
 def submit_to_k8s(yaml_conf):
     # TODO: switch to real deployment configs, pod configs are only for testing usage right now
     # TODO: check if k8s is online?
-    # for now, assume we run in k8s admin mode, placeholder for client job submission in the future
-    config.load_kube_config()
+                cmd = f'ssh {job_meta["user"]}{vm_ip} "{setup_cmd} python {current_path}/shutdown.py {job_name}"'
+                print(cmd)
+                subprocess.Popen(cmd, shell=True, stdout=fout, stderr=fout)
     k8s_client = client.ApiClient()
     core_api = client.CoreV1Api()
 
