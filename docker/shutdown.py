@@ -14,4 +14,5 @@ for l in open("fedscale_running_temp").readlines():
     print("kill -9 "+str(l.split()[1]) + " 1>/dev/null 2>&1" + "\n") 
     
 [os.system("kill -9 "+str(l.split()[1]) + " 1>/dev/null 2>&1") for l in open("fedscale_running_temp").readlines()]
+os.system("lsof -t -i:42069| xargs -I {} kill -9 {}")
 os.system("rm fedscale_running_temp")
