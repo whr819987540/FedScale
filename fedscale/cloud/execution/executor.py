@@ -142,6 +142,10 @@ class Executor(object):
         if self.args.use_bt_ps:
             RANK = self.this_rank
             self.logger = utils.get_logger(self.args, f"[{RANK}]")
+            self.torrent = None
+            self.bt_ps_temp_model_path = None
+            # We shouldn't create tc right here, cause we haven't received the updated config.
+            self.tc = None
 
             # client主动发起请求，server将事件设置为UPDATE_BT_PS_CONFIG、返回更新后的配置文件
             self.client_get_updated_bt_ps_config()
