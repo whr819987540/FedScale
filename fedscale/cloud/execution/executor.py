@@ -443,6 +443,8 @@ class Executor(object):
                         f.write(json.dumps(self.bt_ps_config_dict))
                     self.model_root_dir = self.bt_ps_config.model.ModelPath
                     os.makedirs(self.model_root_dir, exist_ok=True)
+                    # Only after receiving the updated config and writing it to dick can we create tc.
+                    self.tc = TorrentCommunicationRPC(self.this_rank, self.logger)
 
             else:
                 time.sleep(1)
