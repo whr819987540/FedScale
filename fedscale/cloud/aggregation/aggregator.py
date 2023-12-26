@@ -335,6 +335,7 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
             # In real deployments, we need to register for each client
             self.client_register_handler(executorId, info)
             if len(self.registered_executor_info) == len(self.executors):
+                # 当注册了的client/executor数目等于期望值时，认为round 0已经完成
                 self.round_completion_handler()
 
     def tictak_client_tasks(self, sampled_clients, num_clients_to_collect):
