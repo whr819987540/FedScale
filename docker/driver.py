@@ -252,7 +252,12 @@ def process_cmd(yaml_file, local=False):
     print(f"if you cannot find logs directory on the path, you need to check ""{job_name}_logging"" log file under FEDSCALE root directory.")
 
 
-def terminate(job_name):
+def terminate(yaml_file):
+    yaml_conf = load_yaml_conf(yaml_file)
+    job_conf = {}
+    for item in yaml_conf['job_conf']:
+        job_conf.update(item)
+    job_name = job_conf['job_name']
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     job_meta_path = os.path.join(current_path, job_name)
@@ -518,5 +523,5 @@ if print_help:
     print("\033[0;32mUsage:\033[0;0m\n")
     print("submit $PATH_TO_CONF_YML     # Submit a job")
     print("logs $JOB_NAME               # Check the aggregator log of a job")
-    print("stop $JOB_NAME               # Terminate a job")
+    print("stop $PATH_TO_CONF_YML               # Terminate a job")
     print()
