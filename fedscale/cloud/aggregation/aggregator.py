@@ -486,6 +486,8 @@ class Aggregator(job_api_pb2_grpc.JobServiceServicer):
         else:
             self.model_weights = [weight + update_weights[i] for i, weight in enumerate(self.model_weights)]
         if self._is_last_result_in_round():
+            # if this update is the last update in the present round,
+            # which mearns that all updates are ready, average previous updates.
             self.model_weights = [np.divide(weight, self.tasks_round) for weight in self.model_weights]
             self.model_wrapper.set_weights(copy.deepcopy(self.model_weights))
 
